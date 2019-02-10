@@ -9,15 +9,12 @@ import multiprocessing
 import os
 import platform
 import shutil
-import sys
 import tempfile
 import pathlib
 import logging
 
-from appdirs import user_data_dir
 from flask.cli import FlaskGroup
 from flask_admin import Admin, AdminIndexView
-from flask_sqlalchemy import SQLAlchemy
 from PIL import Image
 from sqlalchemy_utils import database_exists, create_database
 import click
@@ -168,8 +165,8 @@ def get_duplicate(
         for hash_group in tqdm.tqdm(
                 list(models.grouper(not_in_db_hash_list, 999))):
             hash_list_ms.extend(
-                session.query(models.Phash) \
-                .filter(models.Phash.value.in_(filter(lambda x: x, hash_group))) \
+                session.query(models.Phash)
+                .filter(models.Phash.value.in_(filter(lambda x: x, hash_group)))
                 .all())
         m.phashes.extend(hash_list_ms)
         session.add(m)
@@ -238,7 +235,7 @@ def create_app(script_info=None, db_uri=DEFAULT_DB_URI, image_dir=DEFAULT_IMAGE_
 
     #  Migrate(app, DB)
     # flask-admin
-    app_admin = Admin(
+    Admin(
         app, name='Transformation Invariant Image Search', template_mode='bootstrap3',
         index_view=AdminIndexView(
             name='Home',
@@ -330,7 +327,7 @@ def image_list():
             dict_res = m.to_dict()
             dict_res['url'] = url_for(
                 '.image_url', _external=True,
-            filename='{}.{}'.format(m.value, m.ext)),
+                filename='{}.{}'.format(m.value, m.ext)),
             return jsonify(dict_res)
     ms = DB.session.query(Checksum).filter_by(trash=False).paginate(1, 10).items
     return jsonify([x.to_dict() for x in ms])
